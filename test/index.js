@@ -1,6 +1,7 @@
 global.TEST = true
 global.Bottleneck = require('../lib/index.js')
 global.DLList = require('../lib/DLList.js')
+global.Rules = require('../lib/Rules.js')
 global.makeTest = function (arg1, arg2, arg3, arg4) {
   // ASSERTION
   var asserts = 0
@@ -15,7 +16,6 @@ global.makeTest = function (arg1, arg2, arg3, arg4) {
   // OTHERS
   var start = Date.now()
   var calls = []
-  var limiter = new Bottleneck(arg1, arg2, arg3, arg4)
   var getResults = function () {
     return {
       elapsed: Date.now() - start,
@@ -25,6 +25,7 @@ global.makeTest = function (arg1, arg2, arg3, arg4) {
     }
   }
 
+  var getLimiter
   var context = {
     job: function (err, result, cb) {
       calls.push({err: err, result: result, time: Date.now()-start})
@@ -56,9 +57,9 @@ global.makeTest = function (arg1, arg2, arg3, arg4) {
       }
     },
     last: function (cb) {
-      limiter.submit(function (cb) {cb(null, getResults())}, cb)
+      getLimiter().submit(function (cb) {cb(null, getResults())}, cb)
     },
-    limiter: limiter,
+    limiter: new Bottleneck(arg1, arg2, arg3, arg4),
     assert: assertWrapped,
     asserts: getAsserts,
     results: getResults,
@@ -73,7 +74,20 @@ global.makeTest = function (arg1, arg2, arg3, arg4) {
       var max = shouldBe + 50
       console.assert(results.callsDuration > min)
       console.assert(results.callsDuration < max)
+    },
+    checkTimes: function (times) {
+      var results = getResults()
+      for (var i = 0; i < Math.max(calls.length, times.length); i++) {
+        console.assert(
+          (calls[i].time > (times[i] - 10)) &&
+          (calls[i].time < (times[i] + 50))
+        )
+      }
     }
+  }
+
+  getLimiter = function () {
+    return context.limiter
   }
 
   return context

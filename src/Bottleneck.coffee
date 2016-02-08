@@ -43,6 +43,7 @@ class Bottleneck
 						@_nbRunning--
 						@_tryToRun()
 						if not @interrupt then next.cb?.apply {}, Array::slice.call arguments, 0
+				console.log "Running " + (if @limiter? then "A" else "B") + " " + next.args, Date.now()-t0
 				if @limiter? then @limiter.submit.apply @limiter, Array::concat next.task, next.args, completed
 				else next.task.apply {}, next.args.concat completed
 			, wait
