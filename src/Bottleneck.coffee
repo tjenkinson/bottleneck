@@ -18,9 +18,9 @@ class Bottleneck
 		@limiter = null
 		@events = {}
 	_trigger: (name, args) ->
-		if name == 'dropped' && @rejectOnDrop
+		if name == "dropped" && @rejectOnDrop
 			dropped = args[0]
-			dropped.cb new Error('This job has been dropped.')
+			dropped.cb new Error("This job has been dropped.")
 		setTimeout (=> @events[name]?.forEach (e) -> e.apply {}, args), 0
 	_makeQueues: -> new Bottleneck::DLList() for i in [1..NB_PRIORITIES]
 	chain: (@limiter) -> @
