@@ -33,7 +33,7 @@
     "url": "https://github.com/SGrondin/bottleneck/issues"
   },
   "devDependencies": {
-    "coffee-script": "1.10.x",
+    "coffee-script": "~1.11.1",
     "browserify": "*",
     "mocha":"*",
     "uglify-js": "*"
